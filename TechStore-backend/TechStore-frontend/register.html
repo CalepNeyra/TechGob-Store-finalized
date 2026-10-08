@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechStore - Registro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 sm:p-8">
+    
+    <div class="text-center space-y-2 mb-6">
+      <div class="inline-flex items-center justify-center p-3 bg-blue-600/10 rounded-full text-blue-500 mb-1">
+        <i data-lucide="user-plus" class="w-8 h-8"></i>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-white">Crear una Cuenta</h1>
+      <p class="text-xs text-slate-400">Ingresa tus datos para registrarte en TechStore</p>
+    </div>
+
+    <div id="alert-box" class="hidden p-3 text-xs rounded-lg border mb-4 font-medium flex items-center gap-2"></div>
+
+    <form id="register-form" class="space-y-4">
+      <div class="space-y-1">
+        <label for="name" class="text-xs font-medium text-slate-300">Nombre Completo</label>
+        <input type="text" id="name" required placeholder="Juan Pérez"
+          class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div class="space-y-1">
+        <label for="email" class="text-xs font-medium text-slate-300">Correo Electrónico</label>
+        <input type="email" id="email" required placeholder="juan@ejemplo.com"
+          class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div class="space-y-1">
+        <label for="password" class="text-xs font-medium text-slate-300">Contraseña Segura</label>
+        <input type="password" id="password" required placeholder="Ej: Pass1234!"
+          class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <p class="text-[10px] text-slate-500">Mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial (@$!%*?&)</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1">
+          <label for="store" class="text-xs font-medium text-slate-300">Tienda</label>
+          <input type="text" id="store" value="Tienda Central" required
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="space-y-1">
+          <label for="role" class="text-xs font-medium text-slate-300">Rol asignado</label>
+          <select id="role"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Empleado de Ventas">Empleado de Ventas</option>
+            <option value="Gerente de Tienda">Gerente de Tienda</option>
+            <option value="Administrador del Sistema">Administrador</option>
+            <option value="Auditor">Auditor</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit"
+        class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-md transition shadow-lg shadow-blue-600/20">
+        Registrar Usuario
+      </button>
+    </form>
+
+    <p class="text-center text-xs text-slate-500 mt-6">
+      ¿Ya tienes cuenta? <a href="index.html" class="text-blue-400 hover:underline font-medium">Inicia sesión</a>
+    </p>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    const API_URL = 'http://localhost:3000/auth';
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const store = document.getElementById('store').value;
+      const role = document.getElementById('role').value;
+
+      try {
+        const res = await fetch(`${API_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, store, role })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Error al registrar usuario');
+
+        alert('Registro exitoso. Serás redirigido al inicio de sesión.');
+        window.location.href = 'index.html';
+      } catch (err) {
+        const alertBox = document.getElementById('alert-box');
+        alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i> <span>${err.message}</span>`;
+        alertBox.className = 'p-3 text-xs rounded-lg border mb-4 font-medium flex items-center gap-2 bg-red-500/10 border-red-500/20 text-red-400';
+        alertBox.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Archivos de entorno y credenciales
+.env
+*.env
+TechStore-backend/.env
+
+# Dependencias de Node.js
+node_modules/
+TechStore-backend/node_modules/
+
+# Archivos de sistema y registros
+*.log
+.DS_Store
+Thumbs.db

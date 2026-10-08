@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechStore - Iniciar Sesión</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 sm:p-8 relative">
+    
+    <!-- Encabezado -->
+    <div class="text-center space-y-2 mb-6">
+      <div class="inline-flex items-center justify-center p-3 bg-blue-600/10 rounded-full text-blue-500 mb-1">
+        <i data-lucide="store" class="w-8 h-8"></i>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-white">TechStore Portal</h1>
+      <p class="text-xs text-slate-400">Acceso al sistema de gestión comercial</p>
+    </div>
+
+    <!-- Caja de Notificaciones -->
+    <div id="alert-box" class="hidden p-3 text-xs rounded-lg border mb-4 font-medium flex items-center gap-2"></div>
+
+    <!-- Formulario Principal -->
+    <form id="login-form" class="space-y-4">
+      <div class="space-y-1">
+        <label for="email" class="text-xs font-medium text-slate-300">Correo Electrónico</label>
+        <div class="relative">
+          <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+          <input type="email" id="email" required placeholder="correo@ejemplo.com"
+            class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="password" class="text-xs font-medium text-slate-300">Contraseña</label>
+        <div class="relative">
+          <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+          <input type="password" id="password" required placeholder="••••••••"
+            class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <button type="submit"
+        class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-md transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+        <span>Iniciar Sesión</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </form>
+
+    <!-- Separador -->
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+      <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O acceder con</span></div>
+    </div>
+
+    <!-- OAuth -->
+    <div class="grid grid-cols-2 gap-3">
+      <a href="http://localhost:3000/auth/google"
+        class="flex items-center justify-center gap-2 py-2 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-md text-xs font-medium text-slate-200 transition">
+        <span>Google</span>
+      </a>
+      <a href="http://localhost:3000/auth/github"
+        class="flex items-center justify-center gap-2 py-2 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-md text-xs font-medium text-slate-200 transition">
+        <i data-lucide="github" class="w-4 h-4"></i>
+        <span>GitHub</span>
+      </a>
+    </div>
+
+    <p class="text-center text-xs text-slate-500 mt-6">
+      ¿No tienes cuenta? <a href="register.html" class="text-blue-400 hover:underline font-medium">Regístrate aquí</a>
+    </p>
+  </div>
+
+  <!-- Modal MFA -->
+  <div id="mfa-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="text-center space-y-1">
+        <h3 class="text-lg font-semibold text-white">Verificación de 2 Pasos</h3>
+        <p class="text-xs text-slate-400">Ingresa el código temporal enviado a tu consola/correo.</p>
+      </div>
+      <form id="mfa-form" class="space-y-4">
+        <input type="text" id="mfa-code" maxlength="6" required placeholder="000000"
+          class="w-full text-center tracking-[0.5em] text-2xl font-mono py-2 bg-slate-950 border border-slate-800 rounded-md text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-md transition">
+          Verificar Código
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    const API_URL = 'http://localhost:3000/auth';
+    let userEmailTemp = '';
+
+    function showAlert(msg, isError = true) {
+      const alertBox = document.getElementById('alert-box');
+      alertBox.innerHTML = `<span>${msg}</span>`;
+      alertBox.className = `p-3 text-xs rounded-lg border mb-4 font-medium flex items-center gap-2 ${
+        isError ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+      }`;
+      alertBox.classList.remove('hidden');
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Error en autenticación');
+
+        if (data.mfaRequired) {
+          userEmailTemp = data.email;
+          document.getElementById('mfa-modal').classList.remove('hidden');
+          showAlert(data.message, false);
+        }
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    });
+
+    document.getElementById('mfa-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('mfa-code').value;
+
+      try {
+        const res = await fetch(`${API_URL}/verify-mfa`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmailTemp, code })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Código incorrecto');
+
+        localStorage.setItem('token', data.token);
+        document.getElementById('mfa-modal').classList.add('hidden');
+        showAlert(`¡Bienvenido/a ${data.user.name}! Token guardado con éxito.`, false);
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    });
+  </script>
+</body>
+</html>
